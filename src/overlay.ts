@@ -93,9 +93,13 @@ export class LeafOverlay {
 		this.scheduleRender();
 	}
 
-	/** Caret position relative to the top of the host, measured by the editor extension. */
-	reportCaret(hostY: number): void {
+	/**
+	 * Caret position relative to the top of the host, measured by the editor extension.
+	 * With refreshOnly the position is only updated when the caret already leads.
+	 */
+	reportCaret(hostY: number, refreshOnly: boolean): void {
 		if (!this.listening) return;
+		if (refreshOnly && this.mode !== 'caret') return;
 		const mode = nextMode(this.mode, { kind: 'caret' }, this.model.settings.followCaret);
 		if (mode !== 'caret') return;
 		this.mode = mode;

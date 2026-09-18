@@ -34,9 +34,11 @@ export class RulerManager {
 		return this.current;
 	}
 
-	onChange(listener: ModelListener): void {
+	/** Calls the listener now and after every change; returns a function to unsubscribe. */
+	onChange(listener: ModelListener): () => void {
 		this.listeners.add(listener);
 		listener(this.current);
+		return () => this.listeners.delete(listener);
 	}
 
 	can(action: RulerAction): boolean {
@@ -52,10 +54,10 @@ export class RulerManager {
 		this.apply(withSettings(this.current, settings));
 	}
 
-	reportCaret(hostEl: HTMLElement, hostY: number): void {
+	reportCaret(hostEl: HTMLElement, hostY: number, refreshOnly: boolean): void {
 		for (const overlay of this.overlays.values()) {
 			if (overlay.hostEl === hostEl) {
-				overlay.reportCaret(hostY);
+				overlay.reportCaret(hostY, refreshOnly);
 				return;
 			}
 		}

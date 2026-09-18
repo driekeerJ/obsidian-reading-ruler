@@ -8,6 +8,16 @@
 	position: relative;
 }
 
+/*
+ * Keep the PDF toolbar and search bar readable: they live inside the view
+ * content, so lift them above the overlay instead of dimming them. If Obsidian
+ * renames these classes the only effect is that the bars are dimmed as well.
+ */
+.reading-ruler-host .pdf-toolbar,
+.reading-ruler-host .pdf-findbar {
+	z-index: calc(var(--layer-cover) + 1);
+}
+
 .reading-ruler-overlay {
 	--rr-height: 60px;
 	--rr-width: 100%;
