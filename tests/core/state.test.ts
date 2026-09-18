@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { DEFAULT_SETTINGS } from '../../src/core/settings';
-import { canApply, reduce, type RulerModel } from '../../src/core/state';
+import { canApply, reduce, withSettings, type RulerModel } from '../../src/core/state';
 
 function model(overrides: { enabled?: boolean; pinned?: boolean; bandHeight?: number } = {}): RulerModel {
 	const { pinned = false, ...settings } = overrides;
@@ -82,5 +82,18 @@ describe('canApply', () => {
 	it.each(['togglePin', 'thicker', 'thinner'] as const)('allows %s only while enabled', (action) => {
 		expect(canApply(model({ enabled: false }), action)).toBe(false);
 		expect(canApply(model({ enabled: true }), action)).toBe(true);
+	});
+});
+
+describe('withSettings', () => {
+	it('replaces the settings and keeps the pin while enabled', () => {
+		const next = withSettings(model({ enabled: true, pinned: true }), { ...DEFAULT_SETTINGS, enabled: true, dimStrength: 80 });
+		expect(next.settings.dimStrength).toBe(80);
+		expect(next.pinned).toBe(true);
+	});
+
+	it('releases the pin when the new settings turn the ruler off', () => {
+		const next = withSettings(model({ enabled: true, pinned: true }), { ...DEFAULT_SETTINGS, enabled: false });
+		expect(next.pinned).toBe(false);
 	});
 });

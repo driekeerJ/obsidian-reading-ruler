@@ -11,6 +11,11 @@ export function canApply(model: RulerModel, action: RulerAction): boolean {
 	return action === 'toggle' || model.settings.enabled;
 }
 
+/** Replaces the settings; turning the ruler off always releases the pin. */
+export function withSettings(model: RulerModel, settings: RulerSettings): RulerModel {
+	return { settings, pinned: settings.enabled && model.pinned };
+}
+
 function withBandHeight(model: RulerModel, bandHeight: number): RulerModel {
 	if (bandHeight === model.settings.bandHeight) return model;
 	return { ...model, settings: { ...model.settings, bandHeight } };

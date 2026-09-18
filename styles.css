@@ -1,0 +1,101 @@
+/* Reading Ruler
+ *
+ * The overlay never intercepts input: everything is pointer-events: none
+ * except the small drag handle that is shown for touch input.
+ */
+
+.reading-ruler-host {
+	position: relative;
+}
+
+.reading-ruler-overlay {
+	--rr-height: 60px;
+	--rr-width: 100%;
+	--rr-dim: 0.5;
+	--rr-band-bg: transparent;
+	--rr-x: 0px;
+	--rr-y: 0px;
+	--rr-handle-size: 44px;
+
+	position: absolute;
+	inset: 0;
+	z-index: var(--layer-cover);
+	overflow: hidden;
+	pointer-events: none;
+	user-select: none;
+	-webkit-user-select: none;
+	contain: strict;
+	opacity: 0;
+	visibility: hidden;
+	transition:
+		opacity 150ms ease-out,
+		visibility 0s linear 150ms;
+}
+
+.reading-ruler-overlay.is-enabled {
+	opacity: 1;
+	visibility: visible;
+	transition:
+		opacity 150ms ease-out,
+		visibility 0s;
+}
+
+.reading-ruler-band {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: var(--rr-width);
+	height: var(--rr-height);
+	background-color: var(--rr-band-bg);
+	/* One huge spread shadow dims everything around the band, on all four sides. */
+	box-shadow: 0 0 0 200vmax rgb(0 0 0 / var(--rr-dim));
+	transform: translate3d(var(--rr-x), var(--rr-y), 0);
+	will-change: transform;
+}
+
+.reading-ruler-handle {
+	position: absolute;
+	top: 0;
+	inset-inline-end: 0;
+	width: var(--rr-handle-size);
+	height: var(--rr-handle-size);
+	display: none;
+	align-items: center;
+	justify-content: flex-end;
+	padding-inline-end: var(--size-2-2);
+	transform: translate3d(0, calc(var(--rr-y) + (var(--rr-height) - var(--rr-handle-size)) / 2), 0);
+	will-change: transform;
+	touch-action: none;
+	cursor: ns-resize;
+	-webkit-tap-highlight-color: transparent;
+}
+
+.reading-ruler-handle::after {
+	content: '';
+	width: 6px;
+	height: 32px;
+	border-radius: var(--radius-s);
+	background-color: var(--interactive-accent);
+	border: 1px solid var(--background-modifier-border);
+	box-shadow: 0 0 0 2px var(--background-primary);
+	opacity: 0.85;
+}
+
+.reading-ruler-handle.is-dragging::after {
+	opacity: 1;
+	height: 40px;
+}
+
+/* The handle is only for touch input: on mobile, or once a touch was seen. */
+.is-mobile .reading-ruler-overlay.is-enabled.is-fixed:not(.is-pinned) .reading-ruler-handle,
+.reading-ruler-overlay.is-enabled.is-fixed.has-touch:not(.is-pinned) .reading-ruler-handle {
+	display: flex;
+	pointer-events: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.reading-ruler-overlay,
+	.reading-ruler-overlay.is-enabled {
+		transition: none;
+	}
+}
