@@ -1,0 +1,12 @@
+import { connect } from './cdp.mjs';
+const c = await connect();
+await c.evaluate(`app.changeTheme('obsidian')`); await c.sleep(500);
+await c.send('Input.dispatchTouchEvent', { type:'touchStart', touchPoints:[{x:600,y:600,id:1}] }); await c.send('Input.dispatchTouchEvent', { type:'touchEnd', touchPoints:[] }); await c.sleep(400);
+await c.screenshot('shot-14-dark.png');
+console.log('reduced-motion rule present:', await c.evaluate(`[...document.styleSheets].some(s=>{ try { return [...s.cssRules].some(r=>r.media && /prefers-reduced-motion/.test(r.media.mediaText) && /reading-ruler/.test(r.cssText)); } catch(e){ return false; } })`));
+await c.send('Emulation.setEmulatedMedia', { features:[{name:'prefers-reduced-motion', value:'reduce'}] });
+console.log('transition with reduced motion:', await c.evaluate(`getComputedStyle(document.querySelector('.reading-ruler-overlay')).transitionDuration`));
+await c.send('Emulation.setEmulatedMedia', { features:[] });
+console.log('transition normally           :', await c.evaluate(`getComputedStyle(document.querySelector('.reading-ruler-overlay')).transitionDuration`));
+await c.evaluate(`app.changeTheme('moonstone')`);
+c.close();

@@ -1,0 +1,15 @@
+import { connect } from './cdp.mjs';
+const s = await connect((t) => t.type === 'page' && t.title.startsWith('Settings'));
+const rows = () => s.evaluate(`JSON.stringify([...document.querySelectorAll('.setting-item')].filter(e=>e.querySelector('.setting-item-name')?.innerText).map(e=>({name:e.querySelector('.setting-item-name').innerText, shown: e.offsetParent!==null})).filter(r=>['Width','Custom color','Full width','Tint color'].includes(r.name)))`);
+console.log('initial      :', await rows());
+await s.evaluate(`(() => { const row=[...document.querySelectorAll('.setting-item')].find(e=>e.querySelector('.setting-item-name')?.innerText==='Full width'); row.querySelector('.checkbox-container').click(); })()`);
+await s.sleep(400);
+console.log('full width off:', await rows());
+await s.evaluate(`(() => { const row=[...document.querySelectorAll('.setting-item')].find(e=>e.querySelector('.setting-item-name')?.innerText==='Tint color'); const sel=row.querySelector('select'); sel.value='custom'; sel.dispatchEvent(new Event('change')); })()`);
+await s.sleep(400);
+console.log('tint custom   :', await rows());
+await s.screenshot('shot-12-settings.png');
+s.close();
+const c = await connect();
+console.log('model now     :', await c.evaluate(`app.vault.adapter.read('.obsidian/plugins/reading-ruler/data.json').then(t=>{const d=JSON.parse(t); return JSON.stringify({fullWidth:d.fullWidth, tintPreset:d.tintPreset});})`));
+c.close();
