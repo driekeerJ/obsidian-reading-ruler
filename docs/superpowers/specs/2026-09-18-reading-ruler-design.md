@@ -293,3 +293,47 @@ Show in PDF files.
 - README: installation (manual and BRAT), usage, commands, manual test
   checklists for desktop and iPad, community submission steps.
 - Pushing and releasing happen only on the author's explicit request.
+
+## 16. Implementation notes (decisions made while building)
+
+These refine the sections above; where they differ, this section wins.
+
+1. **Settings tab (section 12).** Obsidian 1.13.0 deprecated `display()` in
+   favour of the declarative `getSettingDefinitions()` API, and the review
+   lint rules do not allow disabling that warning. The settings are therefore
+   described once as data and rendered twice: declaratively on 1.13.0 and
+   later (which also makes them searchable), and through a `display()`
+   fallback on older versions. Values flow through `getControlValue` /
+   `setControlValue` into `RulerManager.updateSettings`. The fixed position is
+   exposed as the virtual key `fixedPercent`.
+2. **Label.** "Follow text cursor while editing" became "Follow caret while
+   editing": the sentence-case lint rule treats "Cursor" as a brand name.
+   "text cursor" is kept as a search alias.
+3. **Caret following (section 11).** Implemented as a CodeMirror `ViewPlugin`
+   instead of an update listener. A caret jump makes Obsidian scroll the
+   editor asynchronously, after any measurement, so while the caret leads the
+   band is re-measured on the editor's `scroll` event and stays on the caret
+   line. That scroll listener only exists while the ruler is on, caret
+   following is on and the ruler is not pinned, and a scroll never takes over
+   from the mouse (`refreshOnly`). The host is found with
+   `closest('.reading-ruler-host')`; editors outside a supported leaf are
+   ignored.
+4. **PDF toolbar.** `.pdf-toolbar` and `.pdf-findbar` live inside
+   `view.contentEl`, so they are lifted above the overlay with a `z-index`
+   rule scoped under `.reading-ruler-host`. If Obsidian renames them the only
+   effect is that they are dimmed too. The Markdown search bar already sits
+   above the overlay through Obsidian's own `--layer-popover`.
+5. **Handle visibility (section 10)** is pure CSS: fixed mode, enabled, not
+   pinned, and either Obsidian's `.is-mobile` body class or the overlay's
+   `has-touch` class, which is set after the first touch event. A mouse-only
+   desktop never shows the handle.
+6. **Core.** `withSettings(model, settings)` was added to `core/state.ts` so
+   that the rule "turning the ruler off releases the pin" also holds when the
+   ruler is turned off from the settings tab.
+7. **Per-frame writes (section 9).** The frame callback writes the CSS
+   variables `--rr-x` and `--rr-y` on the overlay (only when changed); band and
+   handle both derive their `transform` from them.
+8. **Verification.** Done against a second, isolated Obsidian 1.14.2 instance
+   (own `--user-data-dir`, `--remote-debugging-port`) driven through the
+   Chrome DevTools Protocol, with touch input emulated through
+   `Input.dispatchTouchEvent`.
