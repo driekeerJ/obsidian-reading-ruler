@@ -14,6 +14,7 @@ export class RulerManager {
 	private readonly overlays = new Map<WorkspaceLeaf, LeafOverlay>();
 	private readonly listeners = new Set<ModelListener>();
 	private unsaved = false;
+	private destroyed = false;
 	private readonly requestSave = debounce(() => this.saveNow(), SAVE_DELAY_MS, true);
 
 	constructor(
@@ -64,6 +65,8 @@ export class RulerManager {
 	}
 
 	sync(): void {
+		// onLayoutReady cannot be cancelled and may still fire after the plugin was unloaded.
+		if (this.destroyed) return;
 		const seen = new Set<WorkspaceLeaf>();
 
 		this.plugin.app.workspace.iterateAllLeaves((leaf) => {
@@ -85,6 +88,7 @@ export class RulerManager {
 	}
 
 	destroy(): void {
+		this.destroyed = true;
 		this.requestSave.cancel();
 		if (this.unsaved) this.saveNow();
 		for (const overlay of this.overlays.values()) overlay.destroy();
