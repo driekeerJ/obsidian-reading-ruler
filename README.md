@@ -123,7 +123,7 @@ To test in a vault, symlink `main.js`, `manifest.json` and `styles.css` into `<v
 ## Releasing
 
 1. Update `minAppVersion` in `manifest.json` if needed.
-2. Run `npm version patch` (or `minor` / `major`). This updates `manifest.json`, `package.json` and `versions.json` and creates a tag without a `v` prefix.
+2. Run `npm version patch` (or `minor` / `major`). This updates `manifest.json`, `package.json` and `versions.json` and creates a tag without a `v` prefix. If your npm is configured with `ignore-scripts=true`, the script that updates `manifest.json` and `versions.json` is skipped; use `npm version patch --ignore-scripts=false` instead. The release workflow refuses a tag that does not match `manifest.json`.
 3. Push the commit and the tag: `git push && git push --tags`.
 4. The GitHub Actions workflow builds the plugin and creates a **draft** release with `main.js`, `manifest.json` and `styles.css`. Review it and publish.
 

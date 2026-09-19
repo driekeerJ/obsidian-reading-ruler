@@ -1,7 +1,7 @@
 {
 	"id": "reading-ruler",
 	"name": "Reading Ruler",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"minAppVersion": "1.0.0",
 	"description": "Kindle-style reading ruler: a clear band at reading height while the rest of the text is dimmed. Works in Markdown notes and PDFs, on desktop and mobile.",
 	"author": "Jeroen van der Wal",
