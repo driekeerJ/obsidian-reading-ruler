@@ -39,6 +39,10 @@ and its configuration are never touched.
    node tools/obsidian-cdp/03-basic.mjs
    ```
 
+`00-reload.mjs` reloads the plugin after a build and `01-ensure-on.mjs` turns the
+ruler on with a 60 px band, which the expected numbers assume. Note that the
+scripts change the plugin settings of the test vault.
+
 The scripts build on each other's state (03 opens the note and turns the ruler
 on, 05 creates the split with the PDF, 09 moves the PDF to a popout window).
 Touch input is emulated with `Input.dispatchTouchEvent`; that is not a

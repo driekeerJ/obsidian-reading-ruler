@@ -4,7 +4,7 @@ const tab = `app.setting.pluginTabs.find(t=>t.id==='reading-ruler')`;
 const set = (k, v) => c.evaluate(`${tab}.setControlValue('${k}', ${JSON.stringify(v)})`);
 await c.evaluate(`app.setting.close()`);
 await set('fullWidth', false); await set('widthPercent', 50); await set('tintPreset', 'yellow'); await set('tintStrength', 30); await set('dimStrength', 70); await set('bandHeight', 90);
-const band = () => c.evaluate(`JSON.stringify((() => { const b=document.querySelector('.workspace-leaf-content[data-type="markdown"] .reading-ruler-band'); const r=b.getBoundingClientRect(); const cs=getComputedStyle(b); return {l:Math.round(r.left), w:Math.round(r.width), h:Math.round(r.height), bg:cs.backgroundColor, shadow:cs.boxShadow.slice(0,28)}; })())`);
+const band = () => c.evaluate(`JSON.stringify((() => { const scope='.workspace-leaf-content[data-type="markdown"]'; const r=rrBand(scope); const b=document.querySelector(scope+' .reading-ruler-band'); const d=document.querySelector(scope+' .reading-ruler-dim'); return {l:Math.round(r.left), w:Math.round(r.width), h:Math.round(r.height), bg:getComputedStyle(b).backgroundColor, bandShown:getComputedStyle(b).display, dim:getComputedStyle(d).backgroundColor}; })())`);
 await c.mouse('mouseMoved', 600, 380); await c.mouse('mouseMoved', 684, 400); await c.sleep(200);
 console.log('custom width centre :', await band(), '(host 344..1024, expect l=514 w=340)');
 await c.mouse('mouseMoved', 350, 400); await c.sleep(200);

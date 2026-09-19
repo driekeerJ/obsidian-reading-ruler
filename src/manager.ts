@@ -55,6 +55,13 @@ export class RulerManager {
 		this.apply(withSettings(this.current, settings));
 	}
 
+	caretLeads(hostEl: HTMLElement): boolean {
+		for (const overlay of this.overlays.values()) {
+			if (overlay.hostEl === hostEl) return overlay.caretLeads;
+		}
+		return false;
+	}
+
 	reportCaret(hostEl: HTMLElement, hostY: number, refreshOnly: boolean): void {
 		for (const overlay of this.overlays.values()) {
 			if (overlay.hostEl === hostEl) {

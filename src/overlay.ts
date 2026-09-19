@@ -1,5 +1,5 @@
 import { tintToRgba } from './core/color';
-import { computeBand } from './core/geometry';
+import { computeBand, computePieces, type Offset } from './core/geometry';
 import { fractionToY, nextMode, yToFraction, type InputMode } from './core/input';
 import { resolveTintColor } from './core/settings';
 import type { RulerModel } from './core/state';
@@ -20,6 +20,20 @@ type BrowserWindow = Window & typeof window;
 
 const PASSIVE: AddEventListenerOptions = { passive: true };
 
+/** Has to match --rr-handle-size in styles.css. */
+const HANDLE_SIZE = 44;
+
+type PieceName = 'band' | 'dimTop' | 'dimBottom' | 'dimLeft' | 'dimRight' | 'handle';
+
+const PIECE_CLASSES: Record<PieceName, string> = {
+	dimTop: 'reading-ruler-dim mod-top',
+	dimBottom: 'reading-ruler-dim mod-bottom',
+	dimLeft: 'reading-ruler-dim mod-left',
+	dimRight: 'reading-ruler-dim mod-right',
+	band: 'reading-ruler-band',
+	handle: 'reading-ruler-handle',
+};
+
 /**
  * Renders the ruler inside one leaf. It forwards raw input to the pure core
  * functions and only ever writes CSS variables that feed a transform.
@@ -27,6 +41,8 @@ const PASSIVE: AddEventListenerOptions = { passive: true };
 export class LeafOverlay {
 	private readonly overlayEl: HTMLElement;
 	private readonly handleEl: HTMLElement;
+	private readonly pieces: Record<PieceName, HTMLElement>;
+	private readonly writtenTransforms = new Map<PieceName, string>();
 	private readonly stopWatchingMigration: () => void;
 
 	private win: BrowserWindow;
@@ -53,8 +69,12 @@ export class LeafOverlay {
 		this.win = hostEl.win as BrowserWindow;
 		hostEl.addClass('reading-ruler-host');
 		this.overlayEl = hostEl.createDiv({ cls: 'reading-ruler-overlay' });
-		this.overlayEl.createDiv({ cls: 'reading-ruler-band' });
-		this.handleEl = this.overlayEl.createDiv({ cls: 'reading-ruler-handle' });
+		const pieces = {} as Record<PieceName, HTMLElement>;
+		for (const name of Object.keys(PIECE_CLASSES) as PieceName[]) {
+			pieces[name] = this.overlayEl.createDiv({ cls: PIECE_CLASSES[name] });
+		}
+		this.pieces = pieces;
+		this.handleEl = pieces.handle;
 
 		this.stopWatchingMigration = hostEl.onWindowMigrated((win) => {
 			this.cancelFrame();
@@ -83,6 +103,8 @@ export class LeafOverlay {
 		});
 		this.overlayEl.toggleClass('is-enabled', settings.enabled);
 		this.overlayEl.toggleClass('is-pinned', pinned);
+		this.overlayEl.toggleClass('has-tint', settings.tintStrength > 0);
+		this.overlayEl.toggleClass('is-full-width', settings.fullWidth || settings.widthPercent >= 100);
 
 		this.setListening(settings.enabled && !pinned);
 		this.scheduleRender();
@@ -91,6 +113,11 @@ export class LeafOverlay {
 	setFixedFraction(fraction: number): void {
 		this.model = { ...this.model, settings: { ...this.model.settings, fixedFraction: fraction } };
 		this.scheduleRender();
+	}
+
+	/** True while the band is following the caret, so scrolling has to keep it on that line. */
+	get caretLeads(): boolean {
+		return this.listening && this.mode === 'caret';
 	}
 
 	/**
@@ -254,11 +281,21 @@ export class LeafOverlay {
 		});
 
 		this.overlayEl.toggleClass('is-fixed', this.mode === 'fixed');
-		this.writeProps({
-			'--rr-x': `${band.x}px`,
-			'--rr-y': `${band.y}px`,
-			'--rr-width': `${band.width}px`,
-		});
+		this.writeProps({ '--rr-width': `${band.width}px` });
+
+		const offsets = computePieces(band, HANDLE_SIZE);
+		for (const name of Object.keys(offsets) as PieceName[]) this.moveTo(name, offsets[name]);
+	}
+
+	/**
+	 * The transform goes straight onto the element. Routing it through a custom
+	 * property on the overlay would re-resolve the style of every piece each frame.
+	 */
+	private moveTo(name: PieceName, offset: Offset): void {
+		const transform = `translate3d(${offset.x}px, ${offset.y}px, 0)`;
+		if (this.writtenTransforms.get(name) === transform) return;
+		this.writtenTransforms.set(name, transform);
+		this.pieces[name].setCssStyles({ transform });
 	}
 
 	/** Only touches the DOM for values that actually changed. */

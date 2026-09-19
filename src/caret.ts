@@ -48,7 +48,11 @@ export function caretExtension(manager: RulerManager): Extension {
 
 		// A caret jump usually scrolls the editor afterwards, so the band has to be
 		// kept on the caret line while scrolling. This never takes over from the mouse.
-		private readonly onScroll = (): void => this.measure(true);
+		private readonly onScroll = (): void => {
+			// Skip the measurement entirely while the mouse or the fixed position leads.
+			const hostEl = this.view.dom.closest<HTMLElement>('.reading-ruler-host');
+			if (hostEl && manager.caretLeads(hostEl)) this.measure(true);
+		};
 
 		private measure(refreshOnly: boolean): void {
 			// requestMeasure batches the DOM reads into CodeMirror's own measure phase,

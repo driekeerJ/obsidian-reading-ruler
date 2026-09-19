@@ -1,7 +1,7 @@
 import { connect } from './cdp.mjs';
 const c = await connect();
 const j = async (e) => JSON.parse(await c.evaluate(`JSON.stringify(${e})`));
-const overlays = () => j(`[...document.querySelectorAll('.reading-ruler-overlay')].map(el=>{ const r=el.querySelector('.reading-ruler-band').getBoundingClientRect(); const h=el.parentElement.getBoundingClientRect(); const lc=el.closest('.workspace-leaf-content'); return {type:lc.dataset.type, mode:lc.dataset.mode, cls:el.className.replace('reading-ruler-overlay','').trim(), host:[Math.round(h.left),Math.round(h.top),Math.round(h.width),Math.round(h.height)], bandCentre:Math.round(r.top+r.height/2), bandW:Math.round(r.width)}; })`);
+const overlays = () => j(`[...document.querySelectorAll('.reading-ruler-overlay')].map(el=>{ const r=rrBand(el === document ? undefined : el); const h=el.parentElement.getBoundingClientRect(); const lc=el.closest('.workspace-leaf-content'); return {type:lc.dataset.type, mode:lc.dataset.mode, cls:el.className.replace('reading-ruler-overlay','').trim(), host:[Math.round(h.left),Math.round(h.top),Math.round(h.width),Math.round(h.height)], bandCentre:Math.round(r.top+r.height/2), bandW:Math.round(r.width)}; })`);
 // Reading view
 await c.evaluate(`app.commands.executeCommandById('markdown:toggle-preview')`); await c.sleep(600);
 console.log('reading view:', JSON.stringify(await overlays()));

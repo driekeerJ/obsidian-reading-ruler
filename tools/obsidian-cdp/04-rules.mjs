@@ -1,7 +1,7 @@
 import { connect } from './cdp.mjs';
 const c = await connect();
 const j = async (e) => JSON.parse(await c.evaluate(`JSON.stringify(${e})`));
-const band = () => j(`(() => { const el=document.querySelector('.reading-ruler-overlay'); const r=el.querySelector('.reading-ruler-band').getBoundingClientRect(); return {cls:el.className.replace('reading-ruler-overlay','').trim(), t:Math.round(r.top), h:Math.round(r.height), centre: Math.round(r.top+r.height/2)}; })()`);
+const band = () => j(`(() => { const el=document.querySelector('.reading-ruler-overlay'); const r=rrBand(el === document ? undefined : el); return {cls:el.className.replace('reading-ruler-overlay','').trim(), t:Math.round(r.top), h:Math.round(r.height), centre: Math.round(r.top+r.height/2)}; })()`);
 const listeners = async (sel) => {
 	const { result } = await c.send('Runtime.evaluate', { expression: `document.querySelector('${sel}')` });
 	const { listeners } = await c.send('DOMDebugger.getEventListeners', { objectId: result.objectId });

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { computeBand, type BandInput } from '../../src/core/geometry';
+import { computeBand, computePieces, type BandInput } from '../../src/core/geometry';
 
 function input(overrides: Partial<Omit<BandInput, 'settings'>> & Partial<BandInput['settings']> = {}): BandInput {
 	const { bandHeight = 60, fullWidth = true, widthPercent = 100, ...rest } = overrides;
@@ -66,5 +66,36 @@ describe('computeBand: robustness', () => {
 
 	it('handles an empty host without NaN', () => {
 		expect(computeBand(input({ hostWidth: 0, hostHeight: 0, anchorX: 0, anchorY: 0 }))).toEqual({ x: 0, y: -30, width: 0, height: 60 });
+	});
+});
+
+describe('computePieces', () => {
+	const band = { x: 170, y: 270, width: 340, height: 60 };
+
+	it('puts the band at its own position', () => {
+		expect(computePieces(band, 44).band).toEqual({ x: 170, y: 270 });
+	});
+
+	it('hangs the top dim above the band and the bottom dim below it', () => {
+		const pieces = computePieces(band, 44);
+		expect(pieces.dimTop).toEqual({ x: 0, y: 270 });
+		expect(pieces.dimBottom).toEqual({ x: 0, y: 330 });
+	});
+
+	it('places the side dims against the left and right edge of the band', () => {
+		const pieces = computePieces(band, 44);
+		expect(pieces.dimLeft).toEqual({ x: 170, y: 270 });
+		expect(pieces.dimRight).toEqual({ x: 510, y: 270 });
+	});
+
+	it('centres the handle vertically on the band with whole pixels', () => {
+		expect(computePieces(band, 44).handle).toEqual({ x: 0, y: 278 });
+		expect(computePieces({ ...band, height: 25 }, 44).handle).toEqual({ x: 0, y: 261 });
+	});
+
+	it('leaves no gap and no overlap between band and dims', () => {
+		const pieces = computePieces(band, 44);
+		expect(pieces.dimBottom.y - pieces.dimTop.y).toBe(band.height);
+		expect(pieces.dimRight.x - pieces.dimLeft.x).toBe(band.width);
 	});
 });

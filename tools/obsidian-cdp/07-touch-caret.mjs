@@ -1,7 +1,7 @@
 import { connect } from './cdp.mjs';
 const c = await connect();
 const j = async (e) => JSON.parse(await c.evaluate(`JSON.stringify(${e})`));
-const md = () => j(`(() => { const el=document.querySelector('.workspace-leaf-content[data-type="markdown"] .reading-ruler-overlay'); const r=el.querySelector('.reading-ruler-band').getBoundingClientRect(); const hEl=el.querySelector('.reading-ruler-handle'); const hr=hEl.getBoundingClientRect(); const host=el.parentElement.getBoundingClientRect(); return {cls:el.className.replace('reading-ruler-overlay','').trim(), bandCentre:Math.round(r.top+r.height/2), handleDisplay:getComputedStyle(hEl).display, handle:[Math.round(hr.left),Math.round(hr.top),Math.round(hr.width),Math.round(hr.height)], host:[Math.round(host.left),Math.round(host.top),Math.round(host.width),Math.round(host.height)]}; })()`);
+const md = () => j(`(() => { const el=document.querySelector('.workspace-leaf-content[data-type="markdown"] .reading-ruler-overlay'); const r=rrBand(el === document ? undefined : el); const hEl=el.querySelector('.reading-ruler-handle'); const hr=hEl.getBoundingClientRect(); const host=el.parentElement.getBoundingClientRect(); return {cls:el.className.replace('reading-ruler-overlay','').trim(), bandCentre:Math.round(r.top+r.height/2), handleDisplay:getComputedStyle(hEl).display, handle:[Math.round(hr.left),Math.round(hr.top),Math.round(hr.width),Math.round(hr.height)], host:[Math.round(host.left),Math.round(host.top),Math.round(host.width),Math.round(host.height)]}; })()`);
 await c.evaluate(`app.commands.executeCommandById('editor:close-search')`).catch(()=>{});
 await c.evaluate(`(() => { document.querySelector('.document-search-close-button')?.click(); const l=app.workspace.getLeavesOfType('markdown')[0]; app.workspace.setActiveLeaf(l,{focus:true}); l.view.editor.focus(); })()`);
 await c.sleep(300);
@@ -16,7 +16,7 @@ console.log('hit-test handle:', await c.evaluate(`document.elementFromPoint(${hx
 await touch('touchStart', hx, hy); for (let i=1;i<=5;i++) { await touch('touchMove', hx, hy + i*30); await c.sleep(30); } await touch('touchEnd'); await c.sleep(900);
 const s2 = await md(); console.log('after drag    :', JSON.stringify({bandCentre:s2.bandCentre, cls:s2.cls}), ' expected centre ~', Math.round(hy+150));
 console.log('focus kept    :', focusBefore, '->', await c.evaluate(`document.activeElement.className`));
-console.log('other overlay :', JSON.stringify(await j(`(() => { const el=document.querySelector('.workspace-leaf-content[data-type="pdf"] .reading-ruler-overlay'); const r=el.querySelector('.reading-ruler-band').getBoundingClientRect(); const h=el.parentElement.getBoundingClientRect(); return {fractionShown: +((r.top+r.height/2-h.top)/h.height).toFixed(3)}; })()`)));
+console.log('other overlay :', JSON.stringify(await j(`(() => { const el=document.querySelector('.workspace-leaf-content[data-type="pdf"] .reading-ruler-overlay'); const r=rrBand(el === document ? undefined : el); const h=el.parentElement.getBoundingClientRect(); return {fractionShown: +((r.top+r.height/2-h.top)/h.height).toFixed(3)}; })()`)));
 console.log('saved fraction:', JSON.parse(await c.evaluate(`app.vault.adapter.read('.obsidian/plugins/reading-ruler/data.json')`)).fixedFraction);
 // 3. pinned hides handle
 await c.evaluate(`app.commands.executeCommandById('reading-ruler:toggle-pin')`); await c.sleep(150);

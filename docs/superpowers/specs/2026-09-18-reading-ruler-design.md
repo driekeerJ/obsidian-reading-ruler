@@ -337,3 +337,20 @@ These refine the sections above; where they differ, this section wins.
    (own `--user-data-dir`, `--remote-debugging-port`) driven through the
    Chrome DevTools Protocol, with touch input emulated through
    `Input.dispatchTouchEvent`.
+9. **Dimming without a giant layer (replaces the box-shadow in section 9).**
+   Measured in Obsidian 1.14.2, the `200vmax` box-shadow produced one
+   compositor layer of 8872 x 8312 CSS px per pane (150 MP for two panes).
+   Dimming now uses four plain rectangles (`.reading-ruler-dim.mod-top`,
+   `mod-bottom`, `mod-left`, `mod-right`), each at most the size of the pane
+   and with nothing but a background colour. The top piece is anchored with
+   `bottom: 100%` and the left piece with `right: 100%`, so every piece is
+   positioned with whole-pixel translations only and the edges meet without
+   seams. The same two panes now need 6.9 MP. The side pieces only exist for a
+   custom width and the band element only while a tint is set; `will-change`
+   is only applied while the ruler is on. The offsets come from the pure
+   `computePieces()` in `core/geometry.ts`.
+10. **Transforms are written directly** on each piece (`setCssStyles`), and
+    only when the value changed, instead of through custom properties on the
+    overlay, which re-resolved the style of every piece on each frame.
+11. **Caret scroll listener.** The scroll handler returns before measuring
+    unless the caret currently leads in that pane.
