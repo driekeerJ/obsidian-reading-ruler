@@ -7,6 +7,10 @@ A Kindle-style reading ruler for [Obsidian](https://obsidian.md): a clear horizo
 - Never gets in the way: clicking, selecting text, scrolling, following links, typing and PDF annotations all work straight through the ruler.
 - No network access, no telemetry.
 
+![A note with the reading ruler: one clear band, the rest of the text dimmed](images/reading-ruler-light.png)
+
+![Dark theme with a yellow tint and a custom band width](images/reading-ruler-dark-tint.png)
+
 ## How it behaves
 
 | Input | What the ruler does |
@@ -127,26 +131,19 @@ To test in a vault, symlink `main.js`, `manifest.json` and `styles.css` into `<v
 3. Push the commit and the tag: `git push && git push --tags`.
 4. The GitHub Actions workflow builds the plugin and creates a **draft** release with `main.js`, `manifest.json` and `styles.css`. Review it and publish.
 
-## Submitting to the community plugin list
+## Submitting to the community directory
 
-1. Make sure the repository is public and contains `README.md`, `LICENSE`, `manifest.json` and `versions.json` in the root.
-2. Publish a GitHub release whose **tag equals the version in `manifest.json`** (for example `1.0.0`, without a `v`), with `main.js`, `manifest.json` and `styles.css` attached as individual files.
-3. Fork [obsidianmd/obsidian-releases](https://github.com/obsidianmd/obsidian-releases) and add this entry at the **end** of `community-plugins.json`:
+Plugins are submitted through the [Obsidian Community directory](https://community.obsidian.md), not through a pull request. See [Submit your plugin](https://docs.obsidian.md/Plugins/Releasing/Submit+your+plugin) for the official walkthrough.
 
-   ```json
-   {
-   	"id": "reading-ruler",
-   	"name": "Reading Ruler",
-   	"author": "Jeroen van der Wal",
-   	"description": "Kindle-style reading ruler: a clear band at reading height while the rest of the text is dimmed. Works in Markdown notes and PDFs, on desktop and mobile.",
-   	"repo": "driekeerJ/obsidian-reading-ruler"
-   }
-   ```
+1. Make sure the repository is public and has `README.md`, `LICENSE` and `manifest.json` in the root of the default branch. The directory reads the `manifest.json` at the HEAD of that branch.
+2. Publish a GitHub release whose **tag equals the `version` in `manifest.json`** (for example `1.0.0`, without a `v`), with `main.js`, `manifest.json` and `styles.css` attached as individual files. It has to be a normal release, not a draft.
+3. Go to [community.obsidian.md](https://community.obsidian.md) and sign in with your Obsidian account.
+4. On your profile, under **GitHub**, select **Connect**. This gives the directory read-only access to verify that you own the repository.
+5. Open **Plugins** in the sidebar, select **New plugin** and enter `https://github.com/driekeerJ/obsidian-reading-ruler`. Choose yourself as the owner, agree to the [developer policies](https://docs.obsidian.md/Developer+policies) and select **Submit**.
+6. The plugin is reviewed automatically and the directory lists anything that has to be corrected. Fix it in the repository, publish a new release with an incremented version, and the directory picks it up.
+7. Once it is published, announce it if you like in the forum's *Share & showcase* category and in `#updates` on Discord.
 
-   The `id`, `name`, `author` and `description` have to match `manifest.json` exactly.
-4. Open a pull request, choose the **Community Plugin** template and tick the checklist.
-5. A bot validates the entry and the release; fix what it reports by updating the release, not by opening a new pull request. After that a human review follows.
-6. Once merged, announce the plugin if you like in the forum's *Share & showcase* category and in `#updates` on Discord.
+After the first submission, new versions only need a GitHub release; nothing has to be submitted again.
 
 ## Privacy
 
