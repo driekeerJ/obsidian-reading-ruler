@@ -7,9 +7,16 @@ A Kindle-style reading ruler for [Obsidian](https://obsidian.md): a clear horizo
 - Never gets in the way: clicking, selecting text, scrolling, following links, typing and PDF annotations all work straight through the ruler.
 - No network access, no telemetry.
 
-![A note with the reading ruler: one clear band, the rest of the text dimmed](images/reading-ruler-light.png)
+![The band follows the pointer while the rest of the note stays dimmed](images/ruler-demo.gif)
 
-![Dark theme with a yellow tint and a custom band width](images/reading-ruler-dark-tint.png)
+On an iPad the band follows the hovering Apple Pencil, a trackpad or mouse, or rests at a fixed height while the page scrolls underneath it.
+
+The band can be as thin as a single line or as tall as a paragraph, full width or narrower, clear or tinted like a highlighter:
+
+| | |
+|---|---|
+| ![Thin, clear band on a long note](images/ruler-thin-band.png) | ![Full-width band with a yellow tint](images/ruler-full-width-tint.png) |
+| ![Narrower band that follows the pointer horizontally](images/ruler-custom-width.png) | ![Dark theme with a yellow tint and a custom width](images/reading-ruler-dark-tint.png) |
 
 ## How it behaves
 

@@ -354,3 +354,8 @@ These refine the sections above; where they differ, this section wins.
     overlay, which re-resolved the style of every piece on each frame.
 11. **Caret scroll listener.** The scroll handler returns before measuring
     unless the caret currently leads in that pane.
+12. **`minAppVersion` is `1.10.3`, not `1.0.0`.** The submission requirements ask
+    for a version the plugin is known to be compatible with. 1.10.3 is the
+    oldest version the plugin was actually run on (it predates the 1.13.0
+    settings API, so it exercises the `display()` fallback); 1.14.2 is the
+    version everything else was verified on. Nothing older was tested.
