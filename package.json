@@ -1,6 +1,6 @@
 {
 	"name": "obsidian-reading-ruler",
-	"version": "0.1.1",
+	"version": "1.0.0",
 	"description": "Show a Kindle-style reading ruler in Obsidian: a clear band at reading height while the rest of the text is dimmed.",
 	"main": "main.js",
 	"type": "module",
