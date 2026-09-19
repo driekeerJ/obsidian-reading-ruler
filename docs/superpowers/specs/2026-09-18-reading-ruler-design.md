@@ -359,3 +359,10 @@ These refine the sections above; where they differ, this section wins.
     oldest version the plugin was actually run on (it predates the 1.13.0
     settings API, so it exercises the `display()` fallback); 1.14.2 is the
     version everything else was verified on. Nothing older was tested.
+13. **Directory review (1.0.0).** The automated review passed with three
+    recommendations, all addressed in 1.0.1 without dropping support for
+    Obsidian before 1.13.0: the legacy settings renderer lives in
+    `renderLegacy()` so the plugin never calls the deprecated `display()`
+    itself; instead of the deprecated `setDynamicTooltip()` the legacy sliders
+    show their value in a label next to the slider (verified in 1.10.3); and
+    the release workflow attests the provenance of the release assets.

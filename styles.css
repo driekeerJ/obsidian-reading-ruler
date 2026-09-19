@@ -159,3 +159,12 @@
 		transition: none;
 	}
 }
+
+/* Value label next to a slider in the settings tab on Obsidian versions before 1.13.0. */
+.reading-ruler-slider-value {
+	min-width: 5ch;
+	color: var(--text-muted);
+	font-size: var(--font-ui-small);
+	font-variant-numeric: tabular-nums;
+	text-align: end;
+}

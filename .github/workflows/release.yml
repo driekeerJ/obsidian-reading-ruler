@@ -10,6 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      id-token: write
+      attestations: write
     steps:
       - uses: actions/checkout@v5
 
@@ -31,6 +33,16 @@ jobs:
             echo "Tag ${GITHUB_REF#refs/tags/} does not match manifest version $version"
             exit 1
           fi
+
+      # Lets anyone verify that the release assets were built from this repository:
+      # gh attestation verify main.js --repo driekeerJ/obsidian-reading-ruler
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@v4
+        with:
+          subject-path: |
+            main.js
+            manifest.json
+            styles.css
 
       - name: Create draft release
         env:

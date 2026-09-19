@@ -149,6 +149,10 @@ export class RulerSettingTab extends PluginSettingTab {
 
 	/** Fallback for Obsidian versions before 1.13.0, which never call getSettingDefinitions(). */
 	display(): void {
+		this.renderLegacy();
+	}
+
+	private renderLegacy(): void {
 		this.containerEl.empty();
 
 		for (const group of this.getSettingDefinitions()) {
@@ -170,22 +174,29 @@ export class RulerSettingTab extends PluginSettingTab {
 
 		const onChange = (value: unknown): void => {
 			this.setControlValue(key, value);
-			if (STRUCTURAL_KEYS.has(key)) this.display();
+			if (STRUCTURAL_KEYS.has(key)) this.renderLegacy();
 		};
 
 		switch (control.type) {
 			case 'toggle':
 				setting.addToggle((toggle) => toggle.setValue(this.getControlValue(key) as boolean).onChange(onChange));
 				break;
-			case 'slider':
-				setting.addSlider((component) =>
+			case 'slider': {
+				// Before 1.13.0 a slider does not show its value, so put it next to the slider.
+				const format = control.displayFormat ?? String;
+				const valueEl = setting.controlEl.createSpan({
+					cls: 'reading-ruler-slider-value',
+					text: format(this.getControlValue(key) as number),
+				});
+				setting.addSlider((component) => {
 					component
 						.setLimits(control.min, control.max, control.step)
 						.setValue(this.getControlValue(key) as number)
-						.setDynamicTooltip()
-						.onChange(onChange),
-				);
+						.onChange(onChange);
+					component.sliderEl.addEventListener('input', () => valueEl.setText(format(component.getValue())));
+				});
 				break;
+			}
 			case 'dropdown':
 				setting.addDropdown((dropdown) =>
 					dropdown
